@@ -64,6 +64,8 @@ endif()
 
 target_sources(${TARGET_NAME} PRIVATE
     src/implot_util.cpp
+    src/implot_engine.cpp
+    src/vulkan_helper.cpp
 )
 
 
