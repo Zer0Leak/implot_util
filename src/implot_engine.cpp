@@ -22,6 +22,13 @@ static void glfw_error_callback(int error, const char *description) {
 }
 
 auto ImPlotEngine::init(const std::string &title) -> void {
+    std::scoped_lock guard(drawers_mutex_);
+    if (this->window_) {
+        return;
+    }
+
+    this->title_ = title;
+
     glfwSetErrorCallback(glfw_error_callback);
     if (!glfwInit()) {
         throw std::runtime_error("Failed to initialize GLFW");
@@ -120,6 +127,11 @@ auto ImPlotEngine::init(const std::string &title) -> void {
 }
 
 auto ImPlotEngine::deinit() -> void {
+    std::scoped_lock guard(drawers_mutex_);
+    if (!this->window_) {
+        return;
+    }
+
     // Cleanup
     VkResult err = vkDeviceWaitIdle(this->vulkanHelper_.data.device);
     VulkanHelper::check_vk_result(err);
@@ -294,7 +306,19 @@ auto ImPlotEngine::show_detach() -> void {
     }
 }
 
-auto ImPlotEngine::show() -> void {
+auto ImPlotEngine::show(std::optional<std::string> title) -> void {
+    {
+        std::scoped_lock guard(drawers_mutex_);
+        if (title.has_value()) {
+            this->title_ = title.value();
+            if (this->window_) {
+                glfwSetWindowTitle(this->window_, title->c_str());
+            }
+        }
+        if (!this->window_) {
+            this->init(this->title_);
+        }
+    }
     // Our state
     bool show_demo_window = true;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
@@ -345,6 +369,14 @@ auto ImPlotEngine::show() -> void {
             ImPlot::ShowDemoWindow();
         }
 
+        auto snap = this->drawers_.load(std::memory_order_acquire);
+        if (!snap)
+            return;
+
+        for (const auto &item : *snap) {
+            item->fn();
+        }
+
         // Rendering
         ImGui::Render();
         ImDrawData *draw_data = ImGui::GetDrawData();
@@ -358,4 +390,75 @@ auto ImPlotEngine::show() -> void {
             FramePresent(&this->mainWindowData_);
         }
     }
+
+    {
+        std::scoped_lock guard(drawers_mutex_);
+        this->deinit();
+    }
+}
+
+auto ImPlotEngine::draw(EntryPtr item) -> uint32_t {
+    std::scoped_lock guard(drawers_mutex_);
+    auto snap = this->drawers_.load(std::memory_order_acquire);
+
+    std::shared_ptr<std::vector<EntryPtr>> next;
+    if (!snap)
+        next = std::make_shared<std::vector<EntryPtr>>();
+    else
+        next = std::make_shared<std::vector<EntryPtr>>(*snap);
+
+    item->id = ++this->lastDrawerId_;
+    next->push_back(std::move(item));
+
+    drawers_.store(std::shared_ptr<const std::vector<EntryPtr>>(std::move(next)), std::memory_order_release);
+
+    return this->lastDrawerId_;
+}
+
+auto ImPlotEngine::remove_drawer(uint32_t id) -> void {
+    std::scoped_lock guard(drawers_mutex_);
+    auto snap = this->drawers_.load(std::memory_order_acquire);
+
+    if (!snap)
+        return;
+
+    auto next = std::make_shared<std::vector<EntryPtr>>(*snap);
+
+    bool erased = false;
+    for (auto it = next->begin(); it != next->end();) {
+        if ((*it)->id == id) {
+            it = next->erase(it);
+            erased = true;
+            break;
+        } else {
+            ++it;
+        }
+    }
+
+    if (erased) {
+        drawers_.store(std::shared_ptr<const std::vector<EntryPtr>>(std::move(next)), std::memory_order_release);
+    }
+}
+
+auto ImPlotEngine::remove_drawer(const std::string &name) -> void {
+    std::scoped_lock guard(drawers_mutex_);
+    auto snap = this->drawers_.load(std::memory_order_acquire);
+
+    if (!snap)
+        return;
+
+    auto next = std::make_shared<std::vector<EntryPtr>>(*snap);
+
+    auto old_size = next->size();
+    std::erase_if(*next, [&](const EntryPtr &item) { return item->key == name; });
+
+    if (next->size() != old_size) {
+        drawers_.store(std::shared_ptr<const std::vector<EntryPtr>>(std::move(next)), std::memory_order_release);
+    }
+}
+
+auto ImPlotEngine::remove_drawers() -> void {
+    std::scoped_lock guard(drawers_mutex_);
+
+    drawers_.store(std::make_shared<const std::vector<EntryPtr>>(), std::memory_order_release);
 }
