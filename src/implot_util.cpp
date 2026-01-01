@@ -6,14 +6,14 @@ auto ImPlotBegin(const std::string &plot_title, std::optional<const std::string>
     if (!ImGui::Begin(wnd_name.c_str())) {
         return false;
     }
-    if (!ImPlot::BeginPlot(plot_title.c_str())) {
+    if (!ImPlot::BeginPlot(plot_title.c_str(), ImVec2(-1, -1))) {
         ImGui::End();
         return false;
     }
 
     if (axis_limits.has_value()) {
         auto [min_x, max_x, min_y, max_y] = *axis_limits;
-        ImPlot::SetupAxesLimits(min_x, max_x, min_y, max_y, ImPlotCond_Always);
+        ImPlot::SetupAxesLimits(min_x, max_x, min_y, max_y, ImPlotCond_Once);
     }
     return true;
 }

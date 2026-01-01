@@ -306,7 +306,7 @@ auto ImPlotEngine::show_detach() -> void {
     }
 }
 
-auto ImPlotEngine::show(std::optional<std::string> title) -> void {
+auto ImPlotEngine::show(std::optional<std::string> title, bool clear_entries) -> void {
     {
         std::scoped_lock guard(drawers_mutex_);
         if (title.has_value()) {
@@ -371,7 +371,7 @@ auto ImPlotEngine::show(std::optional<std::string> title) -> void {
 
         auto snap = this->drawers_.load(std::memory_order_acquire);
         if (!snap)
-            return;
+            break;
 
         for (const auto &item : *snap) {
             item->fn();
@@ -394,6 +394,9 @@ auto ImPlotEngine::show(std::optional<std::string> title) -> void {
     {
         std::scoped_lock guard(drawers_mutex_);
         this->deinit();
+        if (clear_entries) {
+            this->remove_drawers();
+        }
     }
 }
 

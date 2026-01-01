@@ -35,7 +35,7 @@ class ImPlotEngine : public Singleton<ImPlotEngine> {
     auto show_stop() -> void;
     auto show_wait() -> void;
     auto show_detach() -> void;
-    auto show(std::optional<std::string> title = std::nullopt) -> void;
+    auto show(std::optional<std::string> title = std::nullopt, bool clear_entries = true) -> void;
 
     template <class F> auto draw(F &&fn) -> uint32_t { return draw(std::make_shared<Entry>(std::forward<F>(fn))); }
 
