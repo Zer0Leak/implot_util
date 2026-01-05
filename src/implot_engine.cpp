@@ -38,7 +38,7 @@ auto ImPlotEngine::init(const std::string &title) -> void {
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     float main_scale = ImGui_ImplGlfw_GetContentScaleForMonitor(glfwGetPrimaryMonitor());  // Valid on GLFW 3.3+ only
     this->window_ =
-        glfwCreateWindow((int)(1600 * main_scale), (int)(1000 * main_scale), title.c_str(), nullptr, nullptr);
+        glfwCreateWindow((int)(1920 * main_scale), (int)(1080 * main_scale), title.c_str(), nullptr, nullptr);
     if (!glfwVulkanSupported()) {
         throw std::runtime_error("GLFW: Vulkan Not Supported");
     }
