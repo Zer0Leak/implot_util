@@ -150,6 +150,7 @@ auto ImPlotEngine::deinit() -> void {
     VulkanHelper::check_vk_result(err);
     ImGui_ImplVulkan_Shutdown();
     ImGui_ImplGlfw_Shutdown();
+    ImPlot3D::DestroyContext();
     ImPlot::DestroyContext();
     ImGui::DestroyContext();
 
