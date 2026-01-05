@@ -8,8 +8,8 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_vulkan.h>
 #include <implot.h>
-#include <stdio.h>  // printf, fprintf
-#include <stdlib.h> // abort
+#include <stdio.h>   // printf, fprintf
+#include <stdlib.h>  // abort
 #define GLFW_INCLUDE_NONE
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -36,9 +36,9 @@ auto ImPlotEngine::init(const std::string &title) -> void {
 
     // Create window with Vulkan context
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    float main_scale = ImGui_ImplGlfw_GetContentScaleForMonitor(glfwGetPrimaryMonitor()); // Valid on GLFW 3.3+ only
+    float main_scale = ImGui_ImplGlfw_GetContentScaleForMonitor(glfwGetPrimaryMonitor());  // Valid on GLFW 3.3+ only
     this->window_ =
-        glfwCreateWindow((int)(1280 * main_scale), (int)(800 * main_scale), title.c_str(), nullptr, nullptr);
+        glfwCreateWindow((int)(1600 * main_scale), (int)(1000 * main_scale), title.c_str(), nullptr, nullptr);
     if (!glfwVulkanSupported()) {
         throw std::runtime_error("GLFW: Vulkan Not Supported");
     }
@@ -68,8 +68,8 @@ auto ImPlotEngine::init(const std::string &title) -> void {
     ImGui::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
     (void)io;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;   // Enable Gamepad Controls
 
     ImPlot::CreateContext();
 
@@ -79,10 +79,10 @@ auto ImPlotEngine::init(const std::string &title) -> void {
 
     // Setup scaling
     ImGuiStyle &style = ImGui::GetStyle();
-    style.ScaleAllSizes(main_scale); // Bake a fixed style scale. (until we have a solution for dynamic style scaling,
-                                     // changing this requires resetting Style + calling this again)
-    style.FontScaleDpi = main_scale; // Set initial font scale. (using io.ConfigDpiScaleFonts=true makes this
-                                     // unnecessary. We leave both here for documentation purpose)
+    style.ScaleAllSizes(main_scale);  // Bake a fixed style scale. (until we have a solution for dynamic style scaling,
+                                      // changing this requires resetting Style + calling this again)
+    style.FontScaleDpi = main_scale;  // Set initial font scale. (using io.ConfigDpiScaleFonts=true makes this
+                                      // unnecessary. We leave both here for documentation purpose)
 
     // Setup Platform/Renderer backends
     ImGui_ImplGlfw_InitForVulkan(this->window_, true);
@@ -209,7 +209,7 @@ auto ImPlotEngine::FrameRender(ImGui_ImplVulkanH_Window *wd, ImDrawData *draw_da
     ImGui_ImplVulkanH_Frame *fd = &wd->Frames[wd->FrameIndex];
     {
         err = vkWaitForFences(this->vulkanHelper_.data.device, 1, &fd->Fence, VK_TRUE,
-                              UINT64_MAX); // wait indefinitely instead of periodically checking
+                              UINT64_MAX);  // wait indefinitely instead of periodically checking
         VulkanHelper::check_vk_result(err);
 
         err = vkResetFences(this->vulkanHelper_.data.device, 1, &fd->Fence);
@@ -278,7 +278,7 @@ auto ImPlotEngine::FramePresent(ImGui_ImplVulkanH_Window *wd) -> void {
         return;
     if (err != VK_SUBOPTIMAL_KHR)
         VulkanHelper::check_vk_result(err);
-    wd->SemaphoreIndex = (wd->SemaphoreIndex + 1) % wd->SemaphoreCount; // Now we can use the next set of semaphores
+    wd->SemaphoreIndex = (wd->SemaphoreIndex + 1) % wd->SemaphoreCount;  // Now we can use the next set of semaphores
 }
 
 auto ImPlotEngine::show_async() -> void {
@@ -320,7 +320,7 @@ auto ImPlotEngine::show(std::optional<std::string> title, bool clear_entries) ->
         }
     }
     // Our state
-    bool show_demo_window = true;
+    bool show_demo_window = false;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     // Main loop
