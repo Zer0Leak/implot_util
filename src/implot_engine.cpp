@@ -8,6 +8,8 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_vulkan.h>
 #include <implot.h>
+#include <implot3d.h>
+#include <iostream>
 #include <stdio.h>   // printf, fprintf
 #include <stdlib.h>  // abort
 #define GLFW_INCLUDE_NONE
@@ -66,10 +68,21 @@ auto ImPlotEngine::init(const std::string &title) -> void {
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
+    ImPlot3D::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
     (void)io;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;   // Enable Gamepad Controls
+    if (!(io.BackendFlags & ImGuiBackendFlags_RendererHasVtxOffset)) {
+        // Not supported by this backend build/path
+        std::cerr
+            << "Warning: ImGui Backend doesn't support ImDrawList::VtxOffset. Large meshes may not render correctly."
+            << std::endl;
+    }
+    if (sizeof(ImDrawIdx) == 2) {
+        std::cerr << "Warning: ImGui is using 16-bit indices. This may cause issues with large meshes." << std::endl;
+        IM_ASSERT(io.BackendFlags & ImGuiBackendFlags_RendererHasVtxOffset);
+    }
 
     ImPlot::CreateContext();
 

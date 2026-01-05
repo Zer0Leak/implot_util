@@ -103,6 +103,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
 endif()
 
 
+target_compile_definitions(${TARGET_NAME} PUBLIC IMGUI_USER_CONFIG="imgui_user_config.h")
 
 target_include_directories(${TARGET_NAME}
     PUBLIC
@@ -166,7 +167,12 @@ if(NOT TARGET ImGui::imgui AND NOT TARGET imgui)
     # Provide a stable, namespaced target for consumers
     add_library(ImGui::imgui ALIAS imgui)
 
+    target_compile_definitions(imgui PUBLIC IMGUI_USER_CONFIG="imgui_user_config.h")
+
+
     target_include_directories(imgui PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include>
         ${imgui_src_SOURCE_DIR}
         ${imgui_src_SOURCE_DIR}/backends
     )
@@ -201,7 +207,13 @@ if(NOT TARGET ImPlot::implot AND NOT TARGET implot)
     # Provide a stable, namespaced target for consumers
     add_library(ImPlot::implot ALIAS implot)
 
-    target_include_directories(implot PUBLIC ${implot_src_SOURCE_DIR})
+    target_compile_definitions(implot PUBLIC IMGUI_USER_CONFIG="imgui_user_config.h")
+
+    target_include_directories(implot PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include>
+        ${implot_src_SOURCE_DIR}
+    )
     target_link_libraries(implot PUBLIC ImGui::imgui)
 
 elseif(TARGET implot AND NOT TARGET ImPlot::implot)
@@ -209,6 +221,51 @@ elseif(TARGET implot AND NOT TARGET ImPlot::implot)
 endif()
 
 target_link_libraries(${TARGET_NAME} PUBLIC ImPlot::implot)
+
+target_precompile_headers(${TARGET_NAME} PRIVATE
+    <vector>
+    <string>
+    <format>
+    <imgui.h>
+    <implot.h>
+    <imgui_impl_glfw.h>
+    <imgui_impl_vulkan.h>
+)
+
+if(NOT TARGET ImPlot::implot3d AND NOT TARGET implot3d)
+
+    # --- ImPlot ---
+    FetchContent_Declare(
+        implot3d_src
+        GIT_REPOSITORY git@github.com:brenocq/implot3d.git
+        GIT_TAG v0.3
+    )
+    FetchContent_MakeAvailable(implot3d_src)
+
+    add_library(implot3d STATIC
+        ${implot3d_src_SOURCE_DIR}/implot3d.cpp
+        ${implot3d_src_SOURCE_DIR}/implot3d_items.cpp
+        ${implot3d_src_SOURCE_DIR}/implot3d_demo.cpp
+        ${implot3d_src_SOURCE_DIR}/implot3d_meshes.cpp
+    )
+
+    # Provide a stable, namespaced target for consumers
+    add_library(ImPlot::implot3d ALIAS implot3d)
+
+    target_compile_definitions(implot3d PUBLIC IMGUI_USER_CONFIG="imgui_user_config.h")
+
+    target_include_directories(implot3d PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include>
+        ${implot3d_src_SOURCE_DIR}
+    )
+    target_link_libraries(implot3d PUBLIC ImGui::imgui)
+
+elseif(TARGET implot3d AND NOT TARGET ImPlot::implot3d)
+    add_library(ImPlot::implot3d ALIAS implot3d)
+endif()
+
+target_link_libraries(${TARGET_NAME} PUBLIC ImPlot::implot3d)
 
 target_precompile_headers(${TARGET_NAME} PRIVATE
     <vector>
