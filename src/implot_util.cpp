@@ -59,6 +59,7 @@ auto ImPlotBegin(const std::string &plot_title, std::optional<const std::string>
                  std::optional<std::tuple<float, float, float, float>> axis_limits) -> bool {
     auto wnd_name = wnd_title.has_value() ? *wnd_title : plot_title;
     if (!ImGui::Begin(wnd_name.c_str())) {
+        ImGui::End();
         return false;
     }
 
@@ -79,6 +80,7 @@ auto ImPlotBeginSub(const std::string &plot_title, std::optional<const std::stri
                     int cols) -> bool {
     auto wnd_name = wnd_title.has_value() ? *wnd_title : plot_title;
     if (!ImGui::Begin(wnd_name.c_str())) {
+        ImGui::End();
         return false;
     }
 
