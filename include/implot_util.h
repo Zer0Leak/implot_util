@@ -50,3 +50,8 @@ equalize_axes(const std::tuple<double, double, double, double> &limits) -> std::
 
 extern auto equalize_axes_to_plot_pixels(const std::tuple<double, double, double, double> &limits,
                                          const ImVec2 plot_px) -> std::tuple<double, double, double, double>;
+
+extern auto plot_h_line(double y, ImVec4 color = ImVec4(1.0, 1.0, 1.0, 0.8f)) -> void;
+
+extern auto plot_v_threshold(double threshold, ImVec4 color_left = ImVec4(0.2f, 0.4f, 1.0f, 0.5f) /* blue, 50% alpha */,
+                             ImVec4 color_right = ImVec4(1.0f, 0.3f, 0.3f, 0.5f) /** red, 50% alpha */) -> void;

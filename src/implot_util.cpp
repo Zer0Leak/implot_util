@@ -249,3 +249,52 @@ auto equalize_axes_to_plot_pixels(const std::tuple<double, double, double, doubl
 
     return {xmin, xmax, ymin, ymax};
 }
+
+auto plot_h_line(double y, ImVec4 color) -> void {
+    const double y_ref = y;
+
+    auto limits = ImPlot::GetPlotLimits();
+
+    double xs[2] = {limits.X.Min, limits.X.Max};
+    double ys[2] = {y_ref, y_ref};
+
+    ImPlot::PushStyleVar(ImPlotStyleVar_LineWeight, 0.5f);  // thin
+    ImPlot::PushStyleColor(ImPlotCol_Line, color);
+
+    ImPlot::PlotLine("##y05", xs, ys, 2);
+
+    ImPlot::PopStyleColor();
+    ImPlot::PopStyleVar();
+}
+
+auto plot_v_threshold(double threshold, ImVec4 color_left, ImVec4 color_right) -> void {
+    // 1) Get current plot limits
+    ImPlotRect limits = ImPlot::GetPlotLimits();
+
+    const double y_min = limits.Y.Min;
+    const double y_max = limits.Y.Max;
+
+    // --- LEFT side (x <= 0): BLU ---
+    {
+        ImPlot::PushStyleColor(ImPlotCol_Fill, color_left);
+
+        double xs[2] = {limits.X.Min, threshold};
+        double ys[2] = {y_max, y_max};
+        double y2[2] = {y_min, y_min};
+
+        ImPlot::PlotShaded("##left_bg", xs, ys, y2, 2);
+        ImPlot::PopStyleColor();
+    }
+
+    {
+
+        ImPlot::PushStyleColor(ImPlotCol_Fill, color_right);  // red, 50% alpha
+
+        double xs[2] = {0.0, limits.X.Max};
+        double ys[2] = {y_max, y_max};
+        double y2[2] = {y_min, y_min};
+
+        ImPlot::PlotShaded("##right_bg", xs, ys, y2, 2);
+        ImPlot::PopStyleColor();
+    }
+}
