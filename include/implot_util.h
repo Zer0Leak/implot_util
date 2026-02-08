@@ -40,6 +40,24 @@ extern auto ImPlotEndPlot() -> void;
 extern auto AddDashedLine(ImDrawList *draw_list, ImVec2 p1, ImVec2 p2, ImU32 color, float thickness,
                           float dash_len = 6.0f, float gap_len = 4.0f) -> void;
 
+template <std::floating_point T> void ImPlotAddDashedLine(std::span<const T> x, std::span<const T> y) {
+    assert(x.size() == y.size());
+    const ImVec4 col_f = ImVec4(1.0f, 0.0f, 0.0f, 100.0f / 255.0f);  // alpha = 100
+    const ImU32 col_u = ImGui::ColorConvertFloat4ToU32(col_f);
+    constexpr double thickness = 5.0f;
+
+    ImPlot::SetNextLineStyle(col_f, thickness);
+    ImPlot::PlotDummy("y_ideal");
+    ImDrawList *draw_list = ImPlot::GetPlotDrawList();
+    for (auto i = 0; i < x.size() - 1; ++i) {
+        ImPlotPoint a = {x[i], y[i]};
+        ImPlotPoint b = {x[i + 1], y[i + 1]};
+        const ImVec2 pos1 = ImPlot::PlotToPixels(a);
+        const ImVec2 pos2 = ImPlot::PlotToPixels(b);
+        AddDashedLine(draw_list, pos1, pos2, col_u, thickness);
+    }
+}
+
 extern inline auto catmull_rom(double p0, double p1, double p2, double p3, double t) -> double;
 
 extern auto spline(const std::vector<double> &xs, const std::vector<double> &ys,
