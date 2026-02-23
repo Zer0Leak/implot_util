@@ -66,10 +66,10 @@ auto ImPlotBeginPlot(const std::string &plot_title, const std::string &x_label, 
             auto [xmin, xmax, ymin, ymax] = equalize_axes_to_plot_pixels(*axis_limits, plot_px);
 
             // IMPORTANT: call this BEFORE BeginPlot (avoids SetupLocked)
-            ImPlot::SetupAxesLimits(xmin, xmax, ymin, ymax, ImPlotCond_Always);
+            ImPlot::SetupAxesLimits(xmin, xmax, ymin, ymax, ImPlotCond_Once);
         } else {
             auto [min_x, max_x, min_y, max_y] = *axis_limits;
-            ImPlot::SetupAxesLimits(min_x, max_x, min_y, max_y, ImPlotCond_Always);
+            ImPlot::SetupAxesLimits(min_x, max_x, min_y, max_y, ImPlotCond_Once);
         }
     }
 
