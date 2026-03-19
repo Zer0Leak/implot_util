@@ -145,11 +145,21 @@ endif()
 if(NOT TARGET ImGui::imgui AND NOT TARGET imgui)
 
     # --- ImGui ---
+    set(IMGUI_CACHE_ROOT "/home/enagl/downloaded_libs")
+    set(IMGUI_SOURCE_DIR "${IMGUI_CACHE_ROOT}/imgui-1.92.5")
+    file(MAKE_DIRECTORY "${IMGUI_CACHE_ROOT}")
+
     FetchContent_Declare(
         imgui_src
         GIT_REPOSITORY https://github.com/ocornut/imgui.git
         GIT_TAG v1.92.5
+        SOURCE_DIR "${IMGUI_SOURCE_DIR}"
     )
+
+    if(EXISTS "${IMGUI_SOURCE_DIR}/imgui.cpp")
+        set(FETCHCONTENT_SOURCE_DIR_IMGUI_SRC "${IMGUI_SOURCE_DIR}")
+    endif()
+
     FetchContent_MakeAvailable(imgui_src)
 
     add_library(imgui STATIC
@@ -191,11 +201,21 @@ endif()
 if(NOT TARGET ImPlot::implot AND NOT TARGET implot)
 
     # --- ImPlot ---
+    set(IMPLOT_CACHE_ROOT "/home/enagl/downloaded_libs")
+    set(IMPLOT_SOURCE_DIR "${IMPLOT_CACHE_ROOT}/implot-0.17")
+    file(MAKE_DIRECTORY "${IMPLOT_CACHE_ROOT}")
+
     FetchContent_Declare(
         implot_src
         GIT_REPOSITORY https://github.com/epezent/implot.git
         GIT_TAG v0.17
+        SOURCE_DIR "${IMPLOT_SOURCE_DIR}"
     )
+
+    if(EXISTS "${IMPLOT_SOURCE_DIR}/implot.cpp")
+        set(FETCHCONTENT_SOURCE_DIR_IMPLOT_SRC "${IMPLOT_SOURCE_DIR}")
+    endif()
+
     FetchContent_MakeAvailable(implot_src)
 
     add_library(implot STATIC
@@ -234,12 +254,22 @@ target_precompile_headers(${TARGET_NAME} PRIVATE
 
 if(NOT TARGET ImPlot::implot3d AND NOT TARGET implot3d)
 
-    # --- ImPlot ---
+    # --- ImPlot3D ---
+    set(IMPLOT3D_CACHE_ROOT "/home/enagl/downloaded_libs")
+    set(IMPLOT3D_SOURCE_DIR "${IMPLOT3D_CACHE_ROOT}/implot3d-0.3")
+    file(MAKE_DIRECTORY "${IMPLOT3D_CACHE_ROOT}")
+
     FetchContent_Declare(
         implot3d_src
         GIT_REPOSITORY git@github.com:brenocq/implot3d.git
         GIT_TAG v0.3
+        SOURCE_DIR "${IMPLOT3D_SOURCE_DIR}"
     )
+
+    if(EXISTS "${IMPLOT3D_SOURCE_DIR}/implot3d.cpp")
+        set(FETCHCONTENT_SOURCE_DIR_IMPLOT3D_SRC "${IMPLOT3D_SOURCE_DIR}")
+    endif()
+
     FetchContent_MakeAvailable(implot3d_src)
 
     add_library(implot3d STATIC
