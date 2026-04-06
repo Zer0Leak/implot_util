@@ -34,7 +34,7 @@ extern auto ImPlotEndSub() -> void;
 
 extern auto ImPlotBeginPlot(const std::string &plot_title, const std::string &x_label, const std::string &y_label,
                             std::optional<std::tuple<float, float, float, float>> axis_limits, bool equal_axis = false,
-                            ImVec2 size = ImVec2(-1, -1)) -> bool;
+                            ImVec2 size = ImVec2(-1, -1), ImPlotFlags flags = ImPlotFlags_None) -> bool;
 
 extern auto ImPlotEndPlot() -> void;
 
