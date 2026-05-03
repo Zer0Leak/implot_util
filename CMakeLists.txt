@@ -80,9 +80,13 @@ target_compile_options(${TARGET_NAME} PRIVATE
     $<$<CONFIG:MinSizeRel>:-Os;-DNDEBUG>
 )
 
-target_link_options(${TARGET_NAME} PRIVATE
-    $<$<CONFIG:Debug>:-Wl,--gdb-index> # Linker creates the GDB index
-)
+# Create GDB index only when using a linker that supports it.
+# GNU ld.bfd on this system rejects --gdb-index.
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
+    target_link_options(${TARGET_NAME} PRIVATE
+        $<$<AND:$<CONFIG:Debug>,$<BOOL:${USE_GDB_INDEX}>>:-Wl,--gdb-index>
+    )
+endif()
 
 # Enable Link Time Optimization (IPO/LTO) for Release when supported
 include(CheckIPOSupported)
